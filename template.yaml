@@ -1,0 +1,35 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Resources:
+    # KSM暗号化用CloudFormationカスタムリソースの作成
+    EncrypterFunctionExecutionRole:
+        Type: 'AWS::IAM::Role'
+        Properties:
+            Description: Role for KMS Encrypter
+            RoleName: "KMS-Encrypter-Role"
+            AssumeRolePolicyDocument:
+                Statement:
+                  - Action: 'sts:AssumeRole'
+                    Effect: Allow
+                    Principal:
+                        Service: lambda.amazonaws.com
+            Policies:
+              - PolicyDocument:
+                    Statement:
+                      - Action:
+                          - kms:Encrypt
+                        Effect: Allow
+                        Resource: '*'
+                PolicyName: !Sub "KMS-Encrypter-Policy"
+            Path: "/Lambda/CustomResource/"
+    EncrypterFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+            CodeUri: src/encrypter/
+            Handler: app.lambda_handler
+            FunctionName: !Sub "LambdaCustomResource-KMS-Encrypter"
+            MemorySize: 128
+            Role: !GetAtt EncrypterFunctionExecutionRole.Arn
+            Runtime: python3.6
+            Timeout: 120
+        DependsOn: EncrypterFunctionExecutionRole
