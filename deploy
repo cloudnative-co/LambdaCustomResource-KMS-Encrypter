@@ -1,5 +1,10 @@
 #!/bin/sh
-. ./parameter.cfg
+if [ -z $S3_BUCKET ]; then
+    . ./parameter.cfg
+fi
+if [ -z $REGION ]; then
+    . ./parameter.cfg
+fi
 sam build
 cd .aws-sam/build
 aws cloudformation package \
