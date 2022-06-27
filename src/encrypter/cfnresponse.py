@@ -1,11 +1,4 @@
-#  Copyright 2016 Amazon Web Services, Inc. or its affiliates. All Rights Reserved.
-#  This file is licensed to you under the AWS Customer Agreement (the "License").
-#  You may not use this file except in compliance with the License.
-#  A copy of the License is located at http://aws.amazon.com/agreement/ .
-#  This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, express or implied.
-#  See the License for the specific language governing permissions and limitations under the License.
-
-from botocore.vendored import requests
+import urllib
 import json
 
 SUCCESS = "SUCCESS"
@@ -36,9 +29,14 @@ def send(event, context, responseStatus, responseData, physicalResourceId=None, 
     }
 
     try:
-        response = requests.put(responseUrl,
-                                data=json_responseBody,
-                                headers=headers)
-        print("Status code: " + response.reason)
+        args = {
+            "method": "PUT",
+            "url": responseUrl,
+            "data": json_responseBody.encode("utf-8"),
+            "headers": headers
+        }
+        req = urllib.request.Request(**args)
+        with urllib.request.urlopen(req) as response:
+            print("Status code: " + response.reason)
     except Exception as e:
         print("send(..) failed executing requests.put(..): " + str(e))

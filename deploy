@@ -1,19 +1,16 @@
 #!/bin/sh
 PROJECT_NAME=LambdaCustomResource-KMS-Encrypter
-if [ -z $S3_BUCKET ]; then
-    . ./parameter.cfg
-fi
-if [ -z $REGION ]; then
-    . ./parameter.cfg
-fi
+. ./parameter.cfg
 sam build
 cd .aws-sam/build
+
 aws cloudformation package \
     --region $REGION \
     --template-file template.yaml \
     --s3-prefix $PROJECT_NAME \
     --s3-bucket $S3_BUCKET \
     --output-template-file packaged.yaml
+
 aws cloudformation deploy \
     --stack-name $PROJECT_NAME \
     --template-file packaged.yaml \

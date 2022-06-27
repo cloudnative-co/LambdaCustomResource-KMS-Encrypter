@@ -18,6 +18,9 @@ Resources:
                     Statement:
                       - Action:
                           - kms:Encrypt
+                          - logs:CreateLogGroup
+                          - logs:CreateLogStream
+                          - logs:PutLogEvents
                         Effect: Allow
                         Resource: '*'
                 PolicyName: !Sub "KMS-Encrypter-Policy"
@@ -27,9 +30,14 @@ Resources:
         Properties:
             CodeUri: src/encrypter/
             Handler: app.lambda_handler
-            FunctionName: !Sub "LambdaCustomResource-KMS-Encrypter"
+            FunctionName: "LambdaCustomResource-KMS-Encrypter"
             MemorySize: 128
             Role: !GetAtt EncrypterFunctionExecutionRole.Arn
             Runtime: python3.6
             Timeout: 120
         DependsOn: EncrypterFunctionExecutionRole
+    LogGroup:
+        Type: AWS::Logs::LogGroup
+        Properties:
+            LogGroupName: "/aws/lambda/LambdaCustomResource-KMS-Encrypter"
+            RetentionInDays: 3
